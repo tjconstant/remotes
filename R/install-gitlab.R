@@ -15,6 +15,7 @@
 #'   supply to this argument. This is safer than using a password because you
 #'   can easily delete a PAT without affecting any others. Defaults to the
 #'   GITLAB_PAT environment variable.
+#' @param api Which API version to use? default is v4.
 #' @inheritParams install_github
 #' @export
 #' @family package installation
@@ -25,6 +26,7 @@
 install_gitlab <- function(repo,
                            auth_token = gitlab_pat(),
                            host = "gitlab.com",
+                           api = "v4",
                            dependencies = NA,
                            upgrade = c("default", "ask", "always", "never"),
                            force = FALSE,
@@ -34,7 +36,7 @@ install_gitlab <- function(repo,
                            type = getOption("pkgType"),
                            ...) {
 
-  remotes <- lapply(repo, gitlab_remote, auth_token = auth_token, host = host)
+  remotes <- lapply(repo, gitlab_remote, auth_token = auth_token, host = host, api = api)
 
   install_remotes(remotes, auth_token = auth_token, host = host,
                   dependencies = dependencies,
@@ -49,7 +51,7 @@ install_gitlab <- function(repo,
 }
 
 gitlab_remote <- function(repo,
-                       auth_token = gitlab_pat(), sha = NULL,
+                       auth_token = gitlab_pat(), sha = NULL, api = "v4",
                        host = "gitlab.com", ...) {
 
   meta <- parse_git_repo(repo)
@@ -62,7 +64,8 @@ gitlab_remote <- function(repo,
     username = meta$username,
     ref = meta$ref,
     sha = sha,
-    auth_token = auth_token
+    auth_token = auth_token,
+    api = api
   )
 }
 
@@ -121,7 +124,7 @@ remote_package_name.gitlab_remote <- function(remote, ...) {
 #' @export
 remote_sha.gitlab_remote <- function(remote, ...) {
   gitlab_commit(username = remote$username, repo = remote$repo,
-    host = remote$host, ref = remote$ref, pat = remote$auth_token)
+    host = remote$host, api = remote$api, ref = remote$ref, pat = remote$auth_token)
 }
 
 #' @export
@@ -130,9 +133,9 @@ format.gitlab_remote <- function(x, ...) {
 }
 
 gitlab_commit <- function(username, repo, ref = "master",
-  host = "gitlab.com", pat = gitlab_pat()) {
+  host = "gitlab.com", api = "v4", pat = gitlab_pat()) {
 
-  url <- build_url(host, "api", "v4", "projects", utils::URLencode(paste0(username, "/", repo), reserved = TRUE), "repository", "commits", ref)
+  url <- build_url(host, "api", api, "projects", utils::URLencode(paste0(username, "/", repo), reserved = TRUE), "repository", "commits", ref)
 
   tmp <- tempfile()
   download(tmp, url, auth_token = pat, auth_phrase = "private_token=")
