@@ -5,8 +5,8 @@
 \title{Install a package from GitLab}
 \usage{
 install_gitlab(repo, auth_token = gitlab_pat(), host = "gitlab.com",
-  dependencies = NA, upgrade = c("default", "ask", "always", "never"),
-  force = FALSE, quiet = FALSE, build = TRUE,
+  api = "v4", dependencies = NA, upgrade = c("default", "ask",
+  "always", "never"), force = FALSE, quiet = FALSE, build = TRUE,
   build_opts = c("--no-resave-data", "--no-manual",
   "--no-build-vignettes"), repos = getOption("repos"),
   type = getOption("pkgType"), ...)
@@ -23,6 +23,8 @@ GITLAB_PAT environment variable.}
 
 \item{host}{GitLab API host to use. Override with your GitLab enterprise
 hostname, for example, \code{"gitlab.hostname.com"}.}
+
+\item{api}{Which API version to use? default is v4.}
 
 \item{dependencies}{Which dependencies do you want to check?
 Can be a character vector (selecting from "Depends", "Imports",
